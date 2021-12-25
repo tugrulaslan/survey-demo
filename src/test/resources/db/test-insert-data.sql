@@ -1,0 +1,1 @@
+insert into polls (id) VALUES (1);

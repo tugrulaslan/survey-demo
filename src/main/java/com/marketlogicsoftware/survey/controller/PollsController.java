@@ -3,6 +3,8 @@ package com.marketlogicsoftware.survey.controller;
 import com.marketlogicsoftware.survey.dto.request.PollQuestionRequestDto;
 import com.marketlogicsoftware.survey.dto.request.PollResponseRequestDto;
 import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
+import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
+import com.marketlogicsoftware.survey.service.PollService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +15,18 @@ import javax.validation.Valid;
 @RequestMapping("/api")
 public class PollsController {
 
+    private final PollService pollService;
+
+    public PollsController(PollService pollService) {
+        this.pollService = pollService;
+    }
+
     // TODO: a)   Add/edit/delete questions and answers
     @PostMapping("/polls/{pollId}/questions")
-    public ResponseEntity<String> createQuestion(@Valid @PathVariable Long pollId,
-                                                 @Valid @RequestBody PollQuestionRequestDto requestDto) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<PollQuestionResponse> createQuestion(@Valid @PathVariable Long pollId,
+                                                               @Valid @RequestBody PollQuestionRequestDto requestDto) {
+        PollQuestionResponse question = pollService.createQuestion(pollId, requestDto);
+        return new ResponseEntity<>(question, HttpStatus.CREATED);
     }
 
     @PatchMapping("/polls/{pollId}/questions/{questionId}")

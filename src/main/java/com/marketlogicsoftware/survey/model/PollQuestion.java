@@ -11,6 +11,8 @@ public class PollQuestion {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    private String question;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "poll_id")
     private Poll poll;
@@ -24,6 +26,14 @@ public class PollQuestion {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
     }
 
     public Poll getPoll() {

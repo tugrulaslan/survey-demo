@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-public class PollQuestionResponse {
+public class PollQuestionResponseRequest {
     @NotNull(message = "The Question Id cannot be left null")
     @Range(min = 1L, message = "Please select only positive numbers for the question id")
     private Long questionId;
@@ -18,10 +18,10 @@ public class PollQuestionResponse {
     @Size(min = 1, message = "The Question has be fulfilled at least with one choice")
     private List<Long> choices;
 
-    public PollQuestionResponse() {
+    public PollQuestionResponseRequest() {
     }
 
-    public PollQuestionResponse(Long questionId, List<Long> choices) {
+    public PollQuestionResponseRequest(Long questionId, List<Long> choices) {
         this.questionId = questionId;
         this.choices = choices;
     }
