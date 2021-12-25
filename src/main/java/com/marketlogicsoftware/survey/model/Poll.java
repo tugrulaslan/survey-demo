@@ -29,4 +29,9 @@ public class Poll {
     public void setQuestions(List<PollQuestion> questions) {
         this.questions = questions;
     }
+
+    public void removeQuestion(PollQuestion pollQuestion){
+        questions.remove(pollQuestion);
+        pollQuestion.setPoll(null);
+    }
 }

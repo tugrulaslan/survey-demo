@@ -2,6 +2,7 @@ package com.marketlogicsoftware.survey.service;
 
 import com.marketlogicsoftware.survey.dto.request.PollQuestionRequestDto;
 import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
+import com.marketlogicsoftware.survey.dto.response.PollResponse;
 import com.marketlogicsoftware.survey.exception.UnfoundEntity;
 import com.marketlogicsoftware.survey.mapper.PollMapper;
 import com.marketlogicsoftware.survey.model.Poll;
@@ -14,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,6 +27,7 @@ import static org.mockito.BDDMockito.given;
 public class PollServiceTest {
 
     private static final Long POLL_ID = 1L;
+    private static final Long QUESTION_ID = 1L;
 
     @Mock
     private Poll poll;
@@ -34,6 +38,8 @@ public class PollServiceTest {
     @Mock
     private PollQuestionResponse pollQuestionResponse;
     @Mock
+    private PollResponse pollResponse;
+    @Mock
     private PollRepository pollRepository;
     @Mock
     private PollQuestionRepository pollQuestionRepository;
@@ -41,6 +47,7 @@ public class PollServiceTest {
     private PollMapper pollMapper;
     @InjectMocks
     private PollService pollService;
+    private List<PollQuestion> pollQuestions = Arrays.asList(pollQuestion);
 
     @Test
     public void shouldCreateQuestion() {
@@ -58,7 +65,7 @@ public class PollServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenPollIsNotFound(){
+    public void shouldThrowExceptionWhenPollIsNotFound() {
         //given
         given(pollRepository.findById(POLL_ID)).willReturn(Optional.empty());
 
@@ -69,5 +76,39 @@ public class PollServiceTest {
         assertThat(throwable)
                 .isInstanceOf(UnfoundEntity.class)
                 .hasMessage(String.format("Poll with given id '%s' is not found", POLL_ID));
+    }
+
+    @Test
+    public void shouldDeleteQuestion() {
+        //given
+        PollQuestion mockPollQuestion = new PollQuestion();
+        mockPollQuestion.setId(QUESTION_ID);
+        given(pollRepository.findById(POLL_ID)).willReturn(Optional.of(poll));
+        given(poll.getQuestions()).willReturn(Arrays.asList(mockPollQuestion));
+        given(pollMapper.from(poll)).willReturn(pollResponse);
+
+        //when
+        PollResponse response = pollService.deleteQuestion(POLL_ID, QUESTION_ID);
+
+        //then
+        assertThat(response).isEqualTo(pollResponse);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenDeleteQuestionThatDoesNotExist() {
+        //given
+        PollQuestion mockPollQuestion = new PollQuestion();
+        mockPollQuestion.setId(9999);
+        given(pollRepository.findById(POLL_ID)).willReturn(Optional.of(poll));
+        given(poll.getQuestions()).willReturn(Arrays.asList(mockPollQuestion));
+
+        //when
+        Throwable throwable = catchThrowable(() -> pollService.deleteQuestion(POLL_ID, QUESTION_ID));
+
+        //then
+        assertThat(throwable)
+                .isInstanceOf(UnfoundEntity.class)
+                .hasMessage(String.format("Poll with id '%s' is not associated with a question with given id '%s'",
+                        poll.getId(), QUESTION_ID));
     }
 }

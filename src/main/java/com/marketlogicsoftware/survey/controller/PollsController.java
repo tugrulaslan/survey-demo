@@ -4,6 +4,7 @@ import com.marketlogicsoftware.survey.dto.request.PollQuestionRequestDto;
 import com.marketlogicsoftware.survey.dto.request.PollResponseRequestDto;
 import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
 import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
+import com.marketlogicsoftware.survey.dto.response.PollResponse;
 import com.marketlogicsoftware.survey.service.PollService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +38,10 @@ public class PollsController {
     }
 
     @DeleteMapping("/polls/{pollId}/questions/{questionId}")
-    public ResponseEntity<String> deleteQuestion(@Valid @PathVariable Long pollId,
+    public ResponseEntity<PollResponse> deleteQuestion(@Valid @PathVariable Long pollId,
                                                  @Valid @PathVariable Long questionId) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        PollResponse pollResponse = pollService.deleteQuestion(pollId, questionId);
+        return new ResponseEntity<>(pollResponse, HttpStatus.OK);
     }
 
     //  TODO: a)  Add/edit/delete questions and answers
