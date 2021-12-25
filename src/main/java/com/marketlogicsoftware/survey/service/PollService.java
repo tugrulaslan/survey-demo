@@ -22,9 +22,8 @@ import java.util.Optional;
 @Transactional
 public class PollService {
 
-    //TODO: FIX THE MESSAGE
-    private static final String QUESTION_EXCEPTION_MESSAGE = "Poll with id '%s' is not associated " +
-            "with a question with given id '%s'";
+    private static final String QUESTION_EXCEPTION_MESSAGE = "Question with id '%s' is not associated " +
+            "with a poll with id '%s'";
     private static final String CHOICE_EXCEPTION_MESSAGE = "Choice with id '%s' is not associated " +
             "with a question with id '%s'";
 
@@ -88,7 +87,7 @@ public class PollService {
                 .filter(question -> question.getId() == questionId)
                 .findFirst()
                 .orElseThrow(() ->
-                        new UnfoundEntity(String.format(QUESTION_EXCEPTION_MESSAGE, poll.getId(), questionId)));
+                        new UnfoundEntity(String.format(QUESTION_EXCEPTION_MESSAGE, questionId, poll.getId())));
     }
 
     private QuestionChoice retrieveQuestionChoice(Long choiceId, PollQuestion pollQuestion) {

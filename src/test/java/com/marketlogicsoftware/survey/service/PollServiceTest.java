@@ -122,8 +122,8 @@ public class PollServiceTest {
         //then
         assertThat(throwable)
                 .isInstanceOf(UnfoundEntity.class)
-                .hasMessage(String.format("Poll with id '%s' is not associated with a question with given id '%s'",
-                        poll.getId(), QUESTION_ID));
+                .hasMessage(String.format("Question with id '%s' is not associated with a poll with id '%s'",
+                        QUESTION_ID, poll.getId()));
     }
 
     @Test
