@@ -40,7 +40,7 @@ public class PollsController {
 
     @DeleteMapping("/polls/{pollId}/questions/{questionId}")
     public ResponseEntity<PollResponse> deleteQuestion(@Valid @PathVariable Long pollId,
-                                                 @Valid @PathVariable Long questionId) {
+                                                       @Valid @PathVariable Long questionId) {
         PollResponse pollResponse = pollService.deleteQuestion(pollId, questionId);
         return new ResponseEntity<>(pollResponse, HttpStatus.OK);
     }
@@ -48,8 +48,8 @@ public class PollsController {
     //  TODO: a)  Add/edit/delete questions and answers
     @PostMapping("/polls/{pollId}/questions/{questionId}/choices")
     public ResponseEntity<QuestionChoiceResponse> createChoice(@Valid @PathVariable Long pollId,
-                                               @Valid @PathVariable Long questionId,
-                                               @Valid @RequestBody QuestionChoiceRequestDto requestDto) {
+                                                               @Valid @PathVariable Long questionId,
+                                                               @Valid @RequestBody QuestionChoiceRequestDto requestDto) {
         QuestionChoiceResponse response = pollService.createChoice(pollId, questionId, requestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -60,14 +60,14 @@ public class PollsController {
                                              @Valid @PathVariable Long choiceId,
                                              @Valid @RequestBody QuestionChoiceRequestDto requestDto) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
     }
 
     @DeleteMapping("/polls/{pollId}/questions/{questionId}/choices/{choiceId}")
-    public ResponseEntity<String> deleteChoice(@Valid @PathVariable Long pollId,
-                                               @Valid @PathVariable Long questionId,
-                                               @Valid @PathVariable Long choiceId) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<PollQuestionResponse> deleteChoice(@Valid @PathVariable Long pollId,
+                                                             @Valid @PathVariable Long questionId,
+                                                             @Valid @PathVariable Long choiceId) {
+        PollQuestionResponse response = pollService.deleteChoice(pollId, questionId, choiceId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //TODO: b) read a list of all questions

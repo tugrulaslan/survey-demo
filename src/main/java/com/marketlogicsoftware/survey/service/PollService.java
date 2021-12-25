@@ -22,8 +22,11 @@ import java.util.Optional;
 @Transactional
 public class PollService {
 
+    //TODO: FIX THE MESSAGE
     private static final String QUESTION_EXCEPTION_MESSAGE = "Poll with id '%s' is not associated " +
             "with a question with given id '%s'";
+    private static final String CHOICE_EXCEPTION_MESSAGE = "Choice with id '%s' is not associated " +
+            "with a question with id '%s'";
 
     private final PollRepository pollRepository;
     private final PollQuestionRepository pollQuestionRepository;
@@ -64,12 +67,12 @@ public class PollService {
         return pollMapper.from(persistedChoice);
     }
 
-    private PollQuestion retrievePollQuestion(Long questionId, Poll poll) {
-        return poll.getQuestions().stream()
-                .filter(question -> question.getId() == questionId)
-                .findFirst()
-                .orElseThrow(() ->
-                        new UnfoundEntity(String.format(QUESTION_EXCEPTION_MESSAGE, poll.getId(), questionId)));
+    public PollQuestionResponse deleteChoice(Long pollId, Long questionId, Long choiceId) {
+        Poll poll = retrievePoll(pollId);
+        PollQuestion pollQuestion = retrievePollQuestion(questionId, poll);
+        QuestionChoice choice = retrieveQuestionChoice(choiceId, pollQuestion);
+        pollQuestion.removeChoice(choice);
+        return pollMapper.from(pollQuestion);
     }
 
     private Poll retrievePoll(long pollId) {
@@ -78,5 +81,21 @@ public class PollService {
             throw new UnfoundEntity(String.format("Poll with given id '%s' is not found", pollId));
         }
         return optionalPoll.get();
+    }
+
+    private PollQuestion retrievePollQuestion(Long questionId, Poll poll) {
+        return poll.getQuestions().stream()
+                .filter(question -> question.getId() == questionId)
+                .findFirst()
+                .orElseThrow(() ->
+                        new UnfoundEntity(String.format(QUESTION_EXCEPTION_MESSAGE, poll.getId(), questionId)));
+    }
+
+    private QuestionChoice retrieveQuestionChoice(Long choiceId, PollQuestion pollQuestion) {
+        return pollQuestion.getChoices().stream()
+                .filter(choice -> choice.getId() == choiceId)
+                .findFirst()
+                .orElseThrow(() ->
+                        new UnfoundEntity(String.format(CHOICE_EXCEPTION_MESSAGE, choiceId, pollQuestion.getId())));
     }
 }

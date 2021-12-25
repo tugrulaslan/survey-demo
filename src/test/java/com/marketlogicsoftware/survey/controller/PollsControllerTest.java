@@ -33,6 +33,7 @@ public class PollsControllerTest {
 
     private static final long POLL_ID = 1;
     private static final long QUESTION_ID = 99999;
+    private static final long CHOICE_ID = 99999;
 
     @Autowired
     private MockMvc mockMvc;
@@ -132,5 +133,22 @@ public class PollsControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertThat(result.getResolvedException()
                         .getMessage()).contains("The Question Choice cannot be left null"));
+    }
+
+    @Test
+    @Sql("classpath:db/test-insert-data.sql")
+    @Sql(scripts = "classpath:db/test-remove-data.sql", executionPhase = AFTER_TEST_METHOD)
+    public void shouldDeleteChoice() throws Exception {
+        //given-when
+        ResultActions resultActions = mockMvc.perform(delete(String.format("/api/polls/%s/questions/%s/choices/%s",
+                POLL_ID, QUESTION_ID,CHOICE_ID))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        resultActions.andExpect(status().isOk());
+        PollQuestionResponse response =
+                objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(),
+                        PollQuestionResponse.class);
+        assertThat(response.getChoices()).isEmpty();
     }
 }

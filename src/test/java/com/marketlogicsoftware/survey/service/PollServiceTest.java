@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,7 @@ public class PollServiceTest {
 
     private static final Long POLL_ID = 1L;
     private static final Long QUESTION_ID = 1L;
+    private static final Long CHOICE_ID = 1L;
 
     @Mock
     private Poll poll;
@@ -140,5 +142,44 @@ public class PollServiceTest {
 
         //then
         assertThat(response).isEqualTo(choiceResponse);
+    }
+
+    @Test
+    public void shouldDeleteChoice() {
+        //given
+        QuestionChoice mockChoice = new QuestionChoice();
+        mockChoice.setId(CHOICE_ID);
+        PollQuestion mockPollQuestion = new PollQuestion();
+        mockPollQuestion.setId(QUESTION_ID);
+        mockPollQuestion.setChoices(new ArrayList<>(Arrays.asList(mockChoice)));
+        given(pollRepository.findById(POLL_ID)).willReturn(Optional.of(poll));
+        given(poll.getQuestions()).willReturn(Arrays.asList(mockPollQuestion));
+        given(pollMapper.from(mockPollQuestion)).willReturn(pollQuestionResponse);
+
+        //when
+        PollQuestionResponse response = pollService.deleteChoice(POLL_ID, POLL_ID, CHOICE_ID);
+        //then
+        assertThat(response).isEqualTo(pollQuestionResponse);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenDeleteChoiceThatDoesNotExist() {
+        //given
+        QuestionChoice mockChoice = new QuestionChoice();
+        mockChoice.setId(9999);
+        PollQuestion mockPollQuestion = new PollQuestion();
+        mockPollQuestion.setId(QUESTION_ID);
+        mockPollQuestion.setChoices(new ArrayList<>(Arrays.asList(mockChoice)));
+        given(pollRepository.findById(POLL_ID)).willReturn(Optional.of(poll));
+        given(poll.getQuestions()).willReturn(Arrays.asList(mockPollQuestion));
+
+        //when
+        Throwable throwable = catchThrowable(() -> pollService.deleteChoice(POLL_ID, QUESTION_ID, CHOICE_ID));
+
+        //then
+        assertThat(throwable)
+                .isInstanceOf(UnfoundEntity.class)
+                .hasMessage(String.format("Choice with id '%s' is not associated with a question with id '%s'",
+                        CHOICE_ID, QUESTION_ID));
     }
 }

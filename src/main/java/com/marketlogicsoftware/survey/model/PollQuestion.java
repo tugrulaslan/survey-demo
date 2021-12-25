@@ -51,6 +51,11 @@ public class PollQuestion {
     public void setChoices(List<QuestionChoice> choices) {
         this.choices = choices;
     }
+
+    public void removeChoice(QuestionChoice choice) {
+        choices.remove(choice);
+        choice.setPollQuestion(null);
+    }
 }
 
 
