@@ -85,26 +85,37 @@ public class PollService {
     }
 
     public UserPollResponseList respondToPoll(Long pollId, PollResponseRequestDto request) {
-        Poll poll = retrievePoll(pollId);
-        List<PollQuestionResponseRequest> responses = request.getResponses();
-        List<Response> responseList = new ArrayList<>();
+        List<Response> responseList = collectResponses(pollId, request);
+        return new UserPollResponseList(pollMapper.from(responseList));
+    }
 
-        for (PollQuestionResponseRequest requestResponse : responses) {
-            Long questionId = requestResponse.getQuestionId();
-            PollQuestion pollQuestion = retrievePollQuestion(questionId, poll);
-            List<Long> choiceIds = requestResponse.getChoices();
-            List<QuestionChoice> choices = new ArrayList<>();
-            for (Long choiceId : choiceIds) {
-                QuestionChoice choice = retrieveQuestionChoice(choiceId, pollQuestion);
-                choices.add(choice);
-            }
-            Response response = new Response();
-            response.setPollQuestion(pollQuestion);
-            response.setChoices(choices);
+    private List<Response> collectResponses(Long pollId, PollResponseRequestDto request) {
+        List<Response> responseList = new ArrayList<>();
+        request.getResponses().forEach(requestResponse -> {
+            Response response = collectResponse(pollId, requestResponse);
             Response persistedResponse = responseRepository.save(response);
             responseList.add(persistedResponse);
-        }
-        return new UserPollResponseList(pollMapper.from(responseList));
+        });
+        return responseList;
+    }
+
+    private Response collectResponse(long pollId, PollQuestionResponseRequest requestResponse) {
+        Poll poll = retrievePoll(pollId);
+        Response response = new Response();
+        PollQuestion pollQuestion = retrievePollQuestion(requestResponse.getQuestionId(), poll);
+        List<QuestionChoice> choices = collectChoices(pollQuestion, requestResponse.getChoices());
+        response.setPollQuestion(pollQuestion);
+        response.setChoices(choices);
+        return response;
+    }
+
+    private List<QuestionChoice> collectChoices(PollQuestion pollQuestion, List<Long> choiceIds) {
+        List<QuestionChoice> choices = new ArrayList<>();
+        choiceIds.forEach(choiceId -> {
+            QuestionChoice choice = retrieveQuestionChoice(choiceId, pollQuestion);
+            choices.add(choice);
+        });
+        return choices;
     }
 
     private Poll retrievePoll(long pollId) {

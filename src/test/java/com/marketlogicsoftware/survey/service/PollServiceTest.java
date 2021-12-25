@@ -193,7 +193,6 @@ public class PollServiceTest {
     @Test
     public void shouldRespondToPoll() {
         //given
-        given(pollRepository.findById(POLL_ID)).willReturn(Optional.of(poll));
         given(pollMapper.from(ArgumentMatchers.anyList())).willReturn(userPollResponseList);
 
         //when
