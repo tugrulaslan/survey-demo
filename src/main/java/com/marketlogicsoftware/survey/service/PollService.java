@@ -1,21 +1,28 @@
 package com.marketlogicsoftware.survey.service;
 
 import com.marketlogicsoftware.survey.dto.request.PollQuestionRequestDto;
+import com.marketlogicsoftware.survey.dto.request.PollQuestionResponseRequest;
+import com.marketlogicsoftware.survey.dto.request.PollResponseRequestDto;
 import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
 import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
 import com.marketlogicsoftware.survey.dto.response.PollResponse;
 import com.marketlogicsoftware.survey.dto.response.QuestionChoiceResponse;
+import com.marketlogicsoftware.survey.dto.response.UserPollResponseList;
 import com.marketlogicsoftware.survey.exception.UnfoundEntity;
 import com.marketlogicsoftware.survey.mapper.PollMapper;
 import com.marketlogicsoftware.survey.model.Poll;
 import com.marketlogicsoftware.survey.model.PollQuestion;
 import com.marketlogicsoftware.survey.model.QuestionChoice;
+import com.marketlogicsoftware.survey.model.Response;
 import com.marketlogicsoftware.survey.repository.PollQuestionRepository;
 import com.marketlogicsoftware.survey.repository.PollRepository;
 import com.marketlogicsoftware.survey.repository.QuestionChoiceRepository;
+import com.marketlogicsoftware.survey.repository.ResponseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,15 +37,18 @@ public class PollService {
     private final PollRepository pollRepository;
     private final PollQuestionRepository pollQuestionRepository;
     private final QuestionChoiceRepository questionChoiceRepository;
+    private final ResponseRepository responseRepository;
     private final PollMapper pollMapper;
 
     public PollService(PollRepository pollRepository,
                        PollQuestionRepository pollQuestionRepository,
                        QuestionChoiceRepository questionChoiceRepository,
+                       ResponseRepository responseRepository,
                        PollMapper pollMapper) {
         this.pollRepository = pollRepository;
         this.pollQuestionRepository = pollQuestionRepository;
         this.questionChoiceRepository = questionChoiceRepository;
+        this.responseRepository = responseRepository;
         this.pollMapper = pollMapper;
     }
 
@@ -72,6 +82,29 @@ public class PollService {
         QuestionChoice choice = retrieveQuestionChoice(choiceId, pollQuestion);
         pollQuestion.removeChoice(choice);
         return pollMapper.from(pollQuestion);
+    }
+
+    public UserPollResponseList respondToPoll(Long pollId, PollResponseRequestDto request) {
+        Poll poll = retrievePoll(pollId);
+        List<PollQuestionResponseRequest> responses = request.getResponses();
+        List<Response> responseList = new ArrayList<>();
+
+        for (PollQuestionResponseRequest requestResponse : responses) {
+            Long questionId = requestResponse.getQuestionId();
+            PollQuestion pollQuestion = retrievePollQuestion(questionId, poll);
+            List<Long> choiceIds = requestResponse.getChoices();
+            List<QuestionChoice> choices = new ArrayList<>();
+            for (Long choiceId : choiceIds) {
+                QuestionChoice choice = retrieveQuestionChoice(choiceId, pollQuestion);
+                choices.add(choice);
+            }
+            Response response = new Response();
+            response.setPollQuestion(pollQuestion);
+            response.setChoices(choices);
+            Response persistedResponse = responseRepository.save(response);
+            responseList.add(persistedResponse);
+        }
+        return new UserPollResponseList(pollMapper.from(responseList));
     }
 
     private Poll retrievePoll(long pollId) {

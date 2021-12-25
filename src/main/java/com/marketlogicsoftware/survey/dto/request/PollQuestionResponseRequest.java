@@ -14,7 +14,6 @@ public class PollQuestionResponseRequest {
 
     @Valid
     @NotNull(message = "The Question's choices cannot be left null")
-    @Range(min = 1L, message = "Please select only positive numbers for the choice id of a given question")
     @Size(min = 1, message = "The Question has be fulfilled at least with one choice")
     private List<Long> choices;
 

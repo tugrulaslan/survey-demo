@@ -6,6 +6,7 @@ import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
 import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
 import com.marketlogicsoftware.survey.dto.response.PollResponse;
 import com.marketlogicsoftware.survey.dto.response.QuestionChoiceResponse;
+import com.marketlogicsoftware.survey.dto.response.UserPollResponseList;
 import com.marketlogicsoftware.survey.service.PollService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,9 +86,10 @@ public class PollsController {
 
     //TODO: d) respond to a survey
     @PostMapping("/polls/{pollId}/responses")
-    public ResponseEntity<String> respondToPoll(@Valid @PathVariable Long pollId,
+    public ResponseEntity<UserPollResponseList> respondToPoll(@Valid @PathVariable Long pollId,
                                                 @Valid @RequestBody PollResponseRequestDto requestDto) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        UserPollResponseList response = pollService.respondToPoll(pollId, requestDto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     //TODO: e) Get the relative distribution of a selected answer by question

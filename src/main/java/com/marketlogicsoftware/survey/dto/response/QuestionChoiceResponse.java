@@ -1,5 +1,7 @@
 package com.marketlogicsoftware.survey.dto.response;
 
+import java.util.Objects;
+
 public class QuestionChoiceResponse {
     private long id;
     private String choice;
@@ -26,5 +28,18 @@ public class QuestionChoiceResponse {
 
     public void setChoice(String choice) {
         this.choice = choice;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QuestionChoiceResponse that = (QuestionChoiceResponse) o;
+        return id == that.id && choice.equals(that.choice);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, choice);
     }
 }
