@@ -1,14 +1,18 @@
 package com.marketlogicsoftware.survey.service;
 
 import com.marketlogicsoftware.survey.dto.request.PollQuestionRequestDto;
+import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
 import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
 import com.marketlogicsoftware.survey.dto.response.PollResponse;
+import com.marketlogicsoftware.survey.dto.response.QuestionChoiceResponse;
 import com.marketlogicsoftware.survey.exception.UnfoundEntity;
 import com.marketlogicsoftware.survey.mapper.PollMapper;
 import com.marketlogicsoftware.survey.model.Poll;
 import com.marketlogicsoftware.survey.model.PollQuestion;
+import com.marketlogicsoftware.survey.model.QuestionChoice;
 import com.marketlogicsoftware.survey.repository.PollQuestionRepository;
 import com.marketlogicsoftware.survey.repository.PollRepository;
+import com.marketlogicsoftware.survey.repository.QuestionChoiceRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -34,15 +38,23 @@ public class PollServiceTest {
     @Mock
     private PollQuestion pollQuestion;
     @Mock
+    private QuestionChoice choice;
+    @Mock
     private PollQuestionRequestDto questionRequestDto;
     @Mock
+    private QuestionChoiceRequestDto choiceRequestDto;
+    @Mock
     private PollQuestionResponse pollQuestionResponse;
+    @Mock
+    private QuestionChoiceResponse choiceResponse;
     @Mock
     private PollResponse pollResponse;
     @Mock
     private PollRepository pollRepository;
     @Mock
     private PollQuestionRepository pollQuestionRepository;
+    @Mock
+    private QuestionChoiceRepository questionChoiceRepository;
     @Mock
     private PollMapper pollMapper;
     @InjectMocks
@@ -110,5 +122,23 @@ public class PollServiceTest {
                 .isInstanceOf(UnfoundEntity.class)
                 .hasMessage(String.format("Poll with id '%s' is not associated with a question with given id '%s'",
                         poll.getId(), QUESTION_ID));
+    }
+
+    @Test
+    public void shouldCreateChoice() {
+        //given
+        PollQuestion mockPollQuestion = new PollQuestion();
+        mockPollQuestion.setId(QUESTION_ID);
+        given(pollRepository.findById(POLL_ID)).willReturn(Optional.of(poll));
+        given(poll.getQuestions()).willReturn(Arrays.asList(mockPollQuestion));
+        given(pollMapper.from(choiceRequestDto)).willReturn(choice);
+        given(questionChoiceRepository.save(choice)).willReturn(choice);
+        given(pollMapper.from(choice)).willReturn(choiceResponse);
+
+        //when
+        QuestionChoiceResponse response = pollService.createChoice(POLL_ID, QUESTION_ID, choiceRequestDto);
+
+        //then
+        assertThat(response).isEqualTo(choiceResponse);
     }
 }

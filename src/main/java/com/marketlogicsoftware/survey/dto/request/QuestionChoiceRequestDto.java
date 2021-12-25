@@ -5,7 +5,7 @@ import javax.validation.constraints.Size;
 
 public class QuestionChoiceRequestDto {
     @NotNull(message = "The Question Choice cannot be left null")
-    @Size(min = 10, message = "The Question Choice cannot be left less than 10 characters")
+    @Size(min = 2, message = "The Question Choice cannot be left less than 2 characters")
     private String choice;
 
     public QuestionChoiceRequestDto() {

@@ -5,6 +5,7 @@ import com.marketlogicsoftware.survey.dto.request.PollResponseRequestDto;
 import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
 import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
 import com.marketlogicsoftware.survey.dto.response.PollResponse;
+import com.marketlogicsoftware.survey.dto.response.QuestionChoiceResponse;
 import com.marketlogicsoftware.survey.service.PollService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,11 +46,12 @@ public class PollsController {
     }
 
     //  TODO: a)  Add/edit/delete questions and answers
-    @PostMapping("/polls/{pollId}/questions/{questionId}/choices/")
-    public ResponseEntity<String> createChoice(@Valid @PathVariable Long pollId,
+    @PostMapping("/polls/{pollId}/questions/{questionId}/choices")
+    public ResponseEntity<QuestionChoiceResponse> createChoice(@Valid @PathVariable Long pollId,
                                                @Valid @PathVariable Long questionId,
                                                @Valid @RequestBody QuestionChoiceRequestDto requestDto) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        QuestionChoiceResponse response = pollService.createChoice(pollId, questionId, requestDto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PatchMapping("/polls/{pollId}/questions/{questionId}/choices/{choiceId}")
