@@ -55,8 +55,6 @@ public class PollServiceTest {
     @Mock
     private PollStatisticsResponse pollStatisticsResponse;
     @Mock
-    private List<Response> responseList;
-    @Mock
     private List<UserPollResponse> userPollResponseList;
     @Mock
     private PollResponse pollResponse;
@@ -72,7 +70,6 @@ public class PollServiceTest {
     private PollMapper pollMapper;
     @InjectMocks
     private PollService pollService;
-    private List<PollQuestion> pollQuestions = Arrays.asList(pollQuestion);
 
     @Test
     public void shouldCreateQuestion() {
