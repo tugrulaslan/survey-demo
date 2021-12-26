@@ -4,16 +4,10 @@ import com.marketlogicsoftware.survey.dto.request.PollQuestionRequestDto;
 import com.marketlogicsoftware.survey.dto.request.PollQuestionResponseRequest;
 import com.marketlogicsoftware.survey.dto.request.PollResponseRequestDto;
 import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
-import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
-import com.marketlogicsoftware.survey.dto.response.PollResponse;
-import com.marketlogicsoftware.survey.dto.response.QuestionChoiceResponse;
-import com.marketlogicsoftware.survey.dto.response.UserPollResponseList;
+import com.marketlogicsoftware.survey.dto.response.*;
 import com.marketlogicsoftware.survey.exception.UnfoundEntity;
 import com.marketlogicsoftware.survey.mapper.PollMapper;
-import com.marketlogicsoftware.survey.model.Poll;
-import com.marketlogicsoftware.survey.model.PollQuestion;
-import com.marketlogicsoftware.survey.model.QuestionChoice;
-import com.marketlogicsoftware.survey.model.Response;
+import com.marketlogicsoftware.survey.model.*;
 import com.marketlogicsoftware.survey.repository.PollQuestionRepository;
 import com.marketlogicsoftware.survey.repository.PollRepository;
 import com.marketlogicsoftware.survey.repository.QuestionChoiceRepository;
@@ -87,6 +81,21 @@ public class PollService {
     public UserPollResponseList respondToPoll(Long pollId, PollResponseRequestDto request) {
         List<Response> responseList = collectResponses(pollId, request);
         return new UserPollResponseList(pollMapper.from(responseList));
+    }
+
+    public PollStatisticsResponse listRelativeDistribution(Long pollId, Long questionId, Long choiceId) {
+        Poll poll = retrievePoll(pollId);
+        PollQuestion pollQuestion = retrievePollQuestion(questionId, poll);
+        ChoiceCount result = retrieveChoiceCount(choiceId);
+        return pollMapper.from(result);
+    }
+
+    private ChoiceCount retrieveChoiceCount(Long choiceId) {
+        Optional<ChoiceCount> result = responseRepository.calculateChoiceTotalCount(choiceId);
+        if (result.isEmpty()) {
+            throw new UnfoundEntity(String.format("No result is calculated for choice id '%s'", choiceId));
+        }
+        return result.get();
     }
 
     private List<Response> collectResponses(Long pollId, PollResponseRequestDto request) {

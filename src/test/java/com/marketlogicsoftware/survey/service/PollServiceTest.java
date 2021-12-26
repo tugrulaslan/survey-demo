@@ -6,13 +6,11 @@ import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
 import com.marketlogicsoftware.survey.dto.response.*;
 import com.marketlogicsoftware.survey.exception.UnfoundEntity;
 import com.marketlogicsoftware.survey.mapper.PollMapper;
-import com.marketlogicsoftware.survey.model.Poll;
-import com.marketlogicsoftware.survey.model.PollQuestion;
-import com.marketlogicsoftware.survey.model.QuestionChoice;
-import com.marketlogicsoftware.survey.model.Response;
+import com.marketlogicsoftware.survey.model.*;
 import com.marketlogicsoftware.survey.repository.PollQuestionRepository;
 import com.marketlogicsoftware.survey.repository.PollRepository;
 import com.marketlogicsoftware.survey.repository.QuestionChoiceRepository;
+import com.marketlogicsoftware.survey.repository.ResponseRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
@@ -43,6 +41,8 @@ public class PollServiceTest {
     @Mock
     private QuestionChoice choice;
     @Mock
+    private ChoiceCount choiceCount;
+    @Mock
     private PollQuestionRequestDto questionRequestDto;
     @Mock
     private QuestionChoiceRequestDto choiceRequestDto;
@@ -52,6 +52,8 @@ public class PollServiceTest {
     private PollQuestionResponse pollQuestionResponse;
     @Mock
     private QuestionChoiceResponse choiceResponse;
+    @Mock
+    private PollStatisticsResponse pollStatisticsResponse;
     @Mock
     private List<Response> responseList;
     @Mock
@@ -64,6 +66,8 @@ public class PollServiceTest {
     private PollQuestionRepository pollQuestionRepository;
     @Mock
     private QuestionChoiceRepository questionChoiceRepository;
+    @Mock
+    private ResponseRepository responseRepository;
     @Mock
     private PollMapper pollMapper;
     @InjectMocks
@@ -200,5 +204,25 @@ public class PollServiceTest {
 
         //then
         assertThat(response.getResponseList()).isEqualTo(userPollResponseList);
+    }
+
+    @Test
+    public void shouldRetrieveRelativeDistribution() {
+        //given
+        QuestionChoice mockChoice = new QuestionChoice();
+        mockChoice.setId(CHOICE_ID);
+        PollQuestion mockPollQuestion = new PollQuestion();
+        mockPollQuestion.setId(QUESTION_ID);
+        mockPollQuestion.setChoices(new ArrayList<>(Arrays.asList(mockChoice)));
+        given(pollRepository.findById(POLL_ID)).willReturn(Optional.of(poll));
+        given(poll.getQuestions()).willReturn(Arrays.asList(mockPollQuestion));
+        given(responseRepository.calculateChoiceTotalCount(CHOICE_ID)).willReturn(Optional.of(choiceCount));
+        given(pollMapper.from(choiceCount)).willReturn(pollStatisticsResponse);
+
+        //when
+        PollStatisticsResponse result = pollService.listRelativeDistribution(POLL_ID, QUESTION_ID, CHOICE_ID);
+
+        //then
+        assertThat(result).isEqualTo(pollStatisticsResponse);
     }
 }

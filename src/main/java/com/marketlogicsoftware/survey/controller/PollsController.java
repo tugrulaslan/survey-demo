@@ -3,10 +3,7 @@ package com.marketlogicsoftware.survey.controller;
 import com.marketlogicsoftware.survey.dto.request.PollQuestionRequestDto;
 import com.marketlogicsoftware.survey.dto.request.PollResponseRequestDto;
 import com.marketlogicsoftware.survey.dto.request.QuestionChoiceRequestDto;
-import com.marketlogicsoftware.survey.dto.response.PollQuestionResponse;
-import com.marketlogicsoftware.survey.dto.response.PollResponse;
-import com.marketlogicsoftware.survey.dto.response.QuestionChoiceResponse;
-import com.marketlogicsoftware.survey.dto.response.UserPollResponseList;
+import com.marketlogicsoftware.survey.dto.response.*;
 import com.marketlogicsoftware.survey.service.PollService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +47,8 @@ public class PollsController {
     @PostMapping("/polls/{pollId}/questions/{questionId}/choices")
     public ResponseEntity<QuestionChoiceResponse> createChoice(@Valid @PathVariable Long pollId,
                                                                @Valid @PathVariable Long questionId,
-                                                               @Valid @RequestBody QuestionChoiceRequestDto requestDto) {
-        QuestionChoiceResponse response = pollService.createChoice(pollId, questionId, requestDto);
+                                                               @Valid @RequestBody QuestionChoiceRequestDto request) {
+        QuestionChoiceResponse response = pollService.createChoice(pollId, questionId, request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -87,16 +84,17 @@ public class PollsController {
     //TODO: d) respond to a survey
     @PostMapping("/polls/{pollId}/responses")
     public ResponseEntity<UserPollResponseList> respondToPoll(@Valid @PathVariable Long pollId,
-                                                @Valid @RequestBody PollResponseRequestDto requestDto) {
+                                                              @Valid @RequestBody PollResponseRequestDto requestDto) {
         UserPollResponseList response = pollService.respondToPoll(pollId, requestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     //TODO: e) Get the relative distribution of a selected answer by question
-    @GetMapping("/polls/{pollId}/responses/{responseId}/questions/{questionId}")
-    public ResponseEntity<String> calculateRelativeDistribution(@Valid @PathVariable Long pollId,
-                                                                @Valid @PathVariable Long responseId,
-                                                                @Valid @PathVariable Long questionId) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    @GetMapping("/polls/{pollId}/questions/{questionId}/choices/{choiceId}")
+    public ResponseEntity<PollStatisticsResponse> listRelativeDistribution(@Valid @PathVariable Long pollId,
+                                                           @Valid @PathVariable Long questionId,
+                                                           @Valid @PathVariable Long choiceId) {
+        PollStatisticsResponse response = pollService.listRelativeDistribution(pollId, questionId, choiceId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
